@@ -1,0 +1,24 @@
+# This workflow will
+# - ensure branch dependencies is up to date in accordance to main.
+
+name: Rebase 'dependencies' branch
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  rebase:
+    name: Rebase 'dependencies' with 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # otherwise, one would need to push refs to dest repo
+          ref: dependencies
+      - run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git rebase -Xours origin/main
+          git push origin dependencies --force

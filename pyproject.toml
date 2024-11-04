@@ -1,0 +1,141 @@
+[tool.poetry]
+name = "pipo_transmuter_spotify"
+version = "0.0.0" # managed from CI
+description = "Bot to play music in a discord channel"
+
+license = "MIT"
+
+authors = [
+    "André Gonçalves <andrecg95@gmail.com>",
+    "Tiago Gonçalves <tiago14_ribeiro@hotmail.com>",
+    "Miguel Peixoto <miguel.peixoto.99@gmail.com>",
+]
+
+maintainers = [
+    "Tiago Gonçalves <tiago14_ribeiro@hotmail.com>",
+]
+
+readme = "README.md"
+
+repository = "https://github.com/sinistro14/pipo_transmuter_spotify"
+
+keywords = ["python", "discord", "spotify", "music", "bot"]
+
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Natural Language :: English",
+    "Topic :: Multimedia :: Sound/Audio",
+    "Topic :: Multimedia :: Sound/Audio :: Players",
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+uuid6 = "^2024.7"
+pydantic = "~2.9.0"
+spotipy = "~2.24.0"
+dynaconf = { version = "~3.2.0", extras = ["yaml"] }
+fastapi = { version = "~0.115.2", extras = ["standard"] }
+faststream = { version = "0.5.28", extras = ["rabbit", "prometheus"] }
+
+[tool.poetry.group.opentelemetry.dependencies]
+opentelemetry-exporter-prometheus = "0.48b0"
+opentelemetry-instrumentation-fastapi = "0.48b0"
+
+[tool.poetry.group.dev.dependencies]
+setuptools = "*"
+pytest = "~8.3.0"
+pytest-xdist = { version = "~3.6.0", extras = ["psutil"] }
+pytest-rerunfailures = "~14.0.0"
+mock = "~5.1.0"
+pytest-mock = "~3.14.0"
+pytest-asyncio = "~0.24.0"
+pytest-cov = "~5.0.0"
+types-mock = "^5.1"
+ruff = "0.6.9"
+vulture = "2.13"
+radon = "^5.1.0"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+pylint = "~3.0.0"
+sphinx = "~7.2.0"
+sphinx-autoapi = "~3.0.0"
+sphinx-immaterial = "~0.11.10"
+
+[tool.poetry.scripts]
+pipo = "pipo.__main__:main"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+addopts = "--cov -m 'not wip' -n auto --reruns 2 --reruns-delay 3.0"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+mock_use_standalone_module = true
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)s] %(message)s (%(filename)s:%(lineno)s)"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+markers = [
+    "wip: suite currently in development, not counting for acceptance",
+    "spotify: assert functionality while relying on spotify APIs",
+    "unit: unit test suite",
+    "integration: integration test suite",
+    "e2e: end to end test suite",
+    "remote_queue: remote queue unit and integration suite",
+]
+
+[tool.coverage.run]
+source = ["pipo_transmuter_spotify"]
+[tool.coverage.report]
+fail_under = 70
+omit = [
+    "*__init__.py",
+    "*__main__.py",
+]
+
+[tool.ruff]
+extend-exclude = [
+    "*__main__.py",
+    "*__init__.py",
+]
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",        #pycodestyle error
+    "W",        #pycodestyle warning
+    "D",        #pydocstyle
+    "F",        #pyflakes
+    "I",        #isort
+    "B",        #bugbear
+    "S",        #bandit
+    "N",        #pep8-naming
+    "G",        #flake8-logging-format
+    "PL",       #pylint
+    "FLY",      #flynt
+    "TRY",      #tryceratops
+    "TCH",      #flake8-type-checking
+    "C90",      #McCabe complexity
+    "ASYNC",    #flake8-async
+    "PERF",     #perflint
+    "FURB",     #refurb
+]
+ignore = [
+    "D100", # missing docstring in public module
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.vulture]
+paths = ["pipo_transmuter_spotify/"]
+make_whitelist = true
+min_confidence = 70
+sort_by_size = true

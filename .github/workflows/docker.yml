@@ -1,0 +1,129 @@
+# Workflow will
+# - build docker image with linux/amd64, linux/arm/v7, linux/arm64 targets;
+# - push image to a Docker Hub and Github Releases.
+
+name: Build/Publish Docker Image
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: [ "Test Application" ]
+    types: [ "completed" ]
+    branches: [ "main" ]
+
+jobs:
+  docker:
+    name: Build + Publish Docker Image
+    runs-on: ubuntu-22.04
+    env:
+      PUBLISH: ${{ github.ref == 'refs/heads/main' && github.event.workflow_run.conclusion == 'success' && github.event_name != 'pull_request' }}
+      REGISTRY: docker.io
+    permissions:
+      contents: write
+      packages: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref }}   # checkout the correct branch name
+        fetch-depth: 0                # fetch the whole repo history
+
+    - name: Git Version
+      id: version
+      uses: codacy/git-version@2.8.0
+      with:
+        release-branch: ${{ github.event.repository.default_branch }}
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        version: latest
+
+    - name: Create platforms matrix
+      id: platforms
+      run: |
+        echo "matrix=$(docker buildx bake image-all --print -f dockerfile-bake.hcl | jq -cr '.target."image-all".platforms | join(",")')" >> $GITHUB_OUTPUT
+
+    - name: Set variables
+      if: success()
+      id: prepare
+      shell: bash
+      run: |
+        echo image=${IMAGE@L} >> $GITHUB_OUTPUT
+        echo platforms=${{ steps.platforms.outputs.matrix }} >> $GITHUB_OUTPUT
+        echo version=${TAG%%-*} >> $GITHUB_OUTPUT
+      env:
+        IMAGE: ${{ vars.CONTAINER_TAG }}
+        TAG: ${{ steps.version.outputs.version }}
+
+    - name: Extract metadata for Docker
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: |
+          docker.io/${{ steps.prepare.outputs.image }}
+          ghcr.io/${{ steps.prepare.outputs.image }}
+        tags: |
+          type=raw,value=${{ steps.prepare.outputs.version }}
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Login to Docker Hub registry
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_CI_USERNAME }}
+        password: ${{ secrets.DOCKER_CI_ACCESS_TOKEN }}
+
+    - name: Login to Github Container registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push to Docker Hub
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        sbom: true
+        push: ${{ env.PUBLISH }}
+        build-args: |
+          PROGRAM_VERSION=${{ steps.prepare.outputs.version }}
+        tags: |
+          ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        platforms: ${{ steps.prepare.outputs.platforms }}
+        cache-from: type=registry,ref=${{ steps.prepare.outputs.image }}:buildcache
+        cache-to: type=registry,ref=${{ steps.prepare.outputs.image }}:buildcache,mode=max,image-manifest=true
+
+    - name: Update Docker Hub description
+      if: ${{ env.PUBLISH }}
+      uses: peter-evans/dockerhub-description@v4
+      with:
+        username: ${{ secrets.DOCKER_CI_USERNAME }}
+        password: ${{ secrets.DOCKER_CI_ACCESS_TOKEN }}
+        repository: ${{ steps.prepare.outputs.image }}
+        enable-url-completion: true
+        short-description: ${{ github.event.repository.description }}
+
+    - name: Push Tag
+      if: ${{ env.PUBLISH }}
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git tag $TAG
+        git push origin $TAG
+      env:
+        TAG: ${{ steps.version.outputs.version }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Create Release
+      if: ${{ env.PUBLISH }}
+      uses: ncipollo/release-action@v1
+      with:
+        tag: ${{ steps.version.outputs.version }}
+        makeLatest: true
+        generateReleaseNotes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

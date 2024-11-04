@@ -1,0 +1,108 @@
+-include .env
+
+APP=pipo_transmuter_spotify
+CONFIG_PATH=pyproject.toml
+POETRY=poetry
+POETRY_VERSION=1.8.4
+PRINT=python -c "import sys; print(str(sys.argv[1]))"
+DOCUMENTATION=docs
+DIAGRAMS_FORMAT=plantuml
+TEST_FOLDER=./tests
+TEST_SECRETS:=$(shell realpath $(TEST_FOLDER)/.secrets.*)
+
+.PHONY: help
+help:
+	$(PRINT) "Usage:"
+	$(PRINT) "    help          show this message"
+	$(PRINT) "    poetry_setup  install poetry to manage python envs and workflows"
+	$(PRINT) "    setup         build virtual environment and install dependencies"
+	$(PRINT) "    test_setup    build virtual environment and install test dependencies"
+	$(PRINT) "    dev_setup     build virtual environment and install dev dependencies"
+	$(PRINT) "    lint          run dev utilities for code quality assurance"
+	$(PRINT) "    format        run dev utilities for code format assurance"
+	$(PRINT) "    docs          generate code documentation"
+	$(PRINT) "    test          run test suite"
+	$(PRINT) "    coverage      run coverage analysis"
+	$(PRINT) "    set_version   set program version"
+	$(PRINT) "    dist          package application for distribution"
+	$(PRINT) "    image         build app docker image"
+	$(PRINT) "    run_image     run app docker image in a container"
+
+.PHONY: poetry_setup
+poetry_setup:
+	curl -sSL https://install.python-poetry.org | python - --version $(POETRY_VERSION)
+	poetry config virtualenvs.in-project true --local
+
+.PHONY: setup
+setup:
+	$(POETRY) install -n --all-extras --without dev
+
+.PHONY: test_setup
+test_setup:
+	$(POETRY) install -n --all-extras
+
+.PHONY: dev_setup
+dev_setup:
+	$(POETRY) install -n --all-extras --with docs
+
+.PHONY: update_deps
+update_deps:
+	$(POETRY) update
+
+.PHONY: ruff
+ruff:
+	-$(POETRY) run ruff check .
+
+.PHONY: format
+format:
+	-$(POETRY) run ruff format .
+
+.PHONY: vulture
+vulture:
+	-$(POETRY) run vulture
+
+.PHONY: metrics
+metrics:
+	$(POETRY) run radon cc -a -s -o SCORE $(APP)
+	$(POETRY) run radon raw -s $(APP)
+	$(POETRY) run radon mi -s $(APP)
+
+.PHONY: lint
+lint: ruff vulture
+
+.PHONY: test
+test:
+	if [ -f $(TEST_SECRETS) ]; then \
+		export SECRETS_FOR_DYNACONF=$(TEST_SECRETS) && $(POETRY) run pytest; \
+	else \
+		$(POETRY) run pytest; \
+	fi
+
+.PHONY: coverage
+coverage:
+	$(POETRY) run coverage report -m
+
+.PHONY: docs
+docs:
+	mkdir -p $(DOCUMENTATION)/_static $(DOCUMENTATION)/_diagrams/src
+	$(POETRY) run pyreverse -p $(APP) \
+		--colorized \
+		-o $(DIAGRAMS_FORMAT) \
+		-d $(DOCUMENTATION)/_diagrams/src $(APP)
+	$(POETRY) run make -C $(DOCUMENTATION) html
+
+.PHONY: set_version
+set_version:
+	$(POETRY) version $$VERSION
+
+.PHONY: dist
+dist:
+	$(POETRY) dist
+
+.PHONY: image
+image: docs
+	docker build . -t $(APP):latest
+
+.PHONY: run_image
+run_image: image
+	docker run -d --name $(APP) --env-file .env $(APP):latest

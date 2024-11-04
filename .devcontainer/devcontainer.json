@@ -1,0 +1,23 @@
+{
+    "name": "Debian",
+    "image": "mcr.microsoft.com/devcontainers/base:bookworm",
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {},
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.11",
+            "installTools": false
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "python.defaultInterpreterPath": ".venv/bin/python"
+            }
+        }
+    },
+    "postCreateCommand": "make poetry_setup dev_setup;",
+    "runArgs": ["--name", "pipo-transmuter-spotify-devcontainer"]
+}
+
