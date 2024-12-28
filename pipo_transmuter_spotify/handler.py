@@ -1,7 +1,7 @@
-import asyncio
-from enum import StrEnum
-import logging
 import random
+import asyncio
+import logging
+from enum import StrEnum
 from dataclasses import dataclass
 from typing import Iterable, List
 
@@ -132,6 +132,5 @@ class SpotifyHandler:
             logging.getLogger(__name__).exception(
                 "Unable to process spotify query '%s'", query
             )
-        if shuffle:
-            random.shuffle(tracks)
+        shuffle and random.shuffle(tracks)
         return [SpotifyHandler.__format_query(track) for track in tracks]

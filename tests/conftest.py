@@ -7,8 +7,10 @@ from pydantic import BaseModel
 import socket
 
 import pytest
-from pipo_transmuter_spotify.config import settings
 from tests import constants
+
+from pipo_transmuter_spotify.config import settings
+from pipo_transmuter_spotify.telemetry import setup_telemetry
 
 
 class Helpers:
@@ -62,8 +64,9 @@ def set_test_settings():
     settings.configure(
         FORCE_ENV_FOR_DYNACONF=constants.TEST_ENVIRONMENT,
     )
+    setup_telemetry("test", settings.telemetry.local)
     logging.basicConfig(
-        level=settings.log.level,
-        format=settings.log.format,
-        encoding=settings.log.encoding,
+        level=settings.telemetry.log.level,
+        format=settings.telemetry.log.format,
+        encoding=settings.telemetry.log.encoding,
     )
