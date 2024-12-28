@@ -26,6 +26,7 @@ help:
 	$(PRINT) "    set_version   set program version"
 	$(PRINT) "    dist          package application for distribution"
 	$(PRINT) "    image         build app docker image"
+	$(PRINT) "    test_image    run test suite in a container"
 	$(PRINT) "    run_image     run app docker image in a container"
 
 .PHONY: poetry_setup
@@ -101,7 +102,11 @@ dist:
 
 .PHONY: image
 image: docs
-	docker build . -t $(APP):latest
+	docker buildx bake image-local
+
+.PHONY: test_image
+test_image:
+	docker buildx bake test
 
 .PHONY: run_image
 run_image: image

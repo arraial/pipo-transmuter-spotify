@@ -1,0 +1,60 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+  prometheus:
+    config:
+      global:
+        scrape_interval: 15s
+        evaluation_interval: 15s
+      scrape_configs:
+        - job_name: otlp
+          static_configs:
+            - targets: ["0.0.0.0:8888"]
+        - job_name: pipo-hub
+          static_configs:
+            - targets: ["pipo.hub:8080"]
+        - job_name: pipo-dispatch
+          static_configs:
+            - targets: ["pipo.dispatch:8080"]
+        - job_name: pipo-transmuter-youtube
+          static_configs:
+            - targets: ["pipo.transmuter.youtube:8080"]
+        - job_name: pipo-transmuter-spotify
+          static_configs:
+            - targets: ["pipo.transmuter.spotify:8080"]
+
+processors:
+  batch:
+
+exporters:
+  debug:
+    verbosity: detailed
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+  otlp:
+    endpoint: pipo.jaeger:4317
+    tls:
+      insecure: true
+
+extensions:
+  health_check:
+
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug, otlp]
+    metrics:
+      receivers: [otlp, prometheus]
+      processors: [batch]
+      exporters: [debug, otlp]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]

@@ -8,7 +8,7 @@ from pipo_transmuter_spotify.models import ProviderOperation
 from pipo_transmuter_spotify.config import settings
 from pipo_transmuter_spotify._queues import (
     router,
-    broker,
+    get_broker,
     transmute_spotify,
     provider_exch,
 )
@@ -54,7 +54,7 @@ class TestDispatch:
         uuid = Helpers.generate_uuid()
 
         async with TestRabbitBroker(
-            broker, with_real=settings.player.queue.remote
+            get_broker(), with_real=settings.player.queue.remote
         ) as br:
             operation_request = ProviderOperation(
                 uuid=uuid,

@@ -1,15 +1,27 @@
 default:
-  log:
-    level: INFO
-    encoding: utf-8
-    format: "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+  telemetry:
+    service: "@format {this.APP}"
+    local: false
+    log:
+      level: INFO
+      encoding: utf-8
+      format: "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+    metrics:
+      service: "@format {this.APP}"
+      endpoint: "/metrics"
   probes:
-    port: 80
+    host: "0.0.0.0"
+    port: 8080
     log_level: info
+    liveness:
+      timeout: 5
+      status_code: 204
+      endpoint: "/livez"
     readiness:
       timeout: 5
+      endpoint: "/readyz"
   # Application name
-  app:
+  app: pipo.transmuter.spotify
   main_task_name: "main_task"
   player:
     queue:

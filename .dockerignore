@@ -25,3 +25,4 @@ coverage.xml
 *.example
 .devcontainer
 dockerfile-bake.hcl
+.ruff_cache
