@@ -1,3 +1,7 @@
+variable "ARCHS" {
+  default = ["linux/amd64", "linux/arm64"]
+}
+
 variable "IMAGE" {
   default = "pipo_transmuter_spotify"
 }
@@ -42,8 +46,8 @@ group "default" {
   targets = ["image"]
 }
 
-target "image-local" {
-  inherits = ["_common"]
+target "image" {
+  inherits = ["_common", "docker-metadata-action"]
   context = "."
   dockerfile = "Dockerfile"
   output = ["type=docker"]
@@ -51,23 +55,25 @@ target "image-local" {
 
 target "test" {
   target = "test"
-  inherits = ["image-local"]
+  inherits = ["image"]
   output = ["type=cacheonly"]
 }
 
-target "image" {
-  inherits = ["image-local", "docker-metadata-action"]
-  output = ["type=registry"]
-  cache-from = ["type=registry,ref=${GITHUB_REPOSITORY_OWNER}/${IMAGE}:buildcache"]
-  cache-to = ["type=registry,ref=${GITHUB_REPOSITORY_OWNER}/${IMAGE}:buildcache,mode=max,image-manifest=true"]
+target "image-arch" {
+  name = "image-${replace(arch, "/", "-")}"
+  inherits = ["image"]
+  cache-from = ["type=registry,ref=${GITHUB_REPOSITORY_OWNER}/${IMAGE}:buildcache-${replace(arch, "/", "-")}"]
+  cache-to = ["type=registry,ref=${GITHUB_REPOSITORY_OWNER}/${IMAGE}:buildcache-${replace(arch, "/", "-")},mode=max,image-manifest=true"]
+  platform = arch
+  matrix = {
+    arch = ARCHS
+  }
 }
 
-target "image-all" {
-  inherits = ["image"]
+group "image-all" {
+  targets = flatten([
+    for arch in ARCHS : "image-${replace(arch, "/", "-")}"
+  ])
   sbom = true
   output = ["type=registry"]
-  platforms = [
-   "linux/amd64",
-   "linux/arm64"
-  ]
 }
