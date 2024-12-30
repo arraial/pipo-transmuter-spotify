@@ -1,3 +1,7 @@
+variable "ARCHS" {
+  default = ["linux/amd64", "linux/arm64"]
+}
+
 variable "IMAGE" {
   default = "pipo_transmuter_spotify"
 }
@@ -62,12 +66,21 @@ target "image" {
   cache-to = ["type=registry,ref=${GITHUB_REPOSITORY_OWNER}/${IMAGE}:buildcache,mode=max,image-manifest=true"]
 }
 
-target "image-all" {
+target "image-arch" {
+  name = "image-${replace(arch, "/", "-")}"
   inherits = ["image"]
+  cache-from = ["type=registry,ref=${GITHUB_REPOSITORY_OWNER}/${IMAGE}:buildcache-${arch}"]
+  cache-to = ["type=registry,ref=${GITHUB_REPOSITORY_OWNER}/${IMAGE}:buildcache-${arch},mode=max,image-manifest=true"]
+  platform = arch
+  matrix = {
+    arch = ARCHS
+  }
+}
+
+group "image-all" {
+  targets = flatten([
+    for arch in ARCHS : "image-${replace(arch, "/", "-")}"
+  ])
   sbom = true
   output = ["type=registry"]
-  platforms = [
-   "linux/amd64",
-   "linux/arm64"
-  ]
 }
