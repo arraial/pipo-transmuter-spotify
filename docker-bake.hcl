@@ -46,8 +46,8 @@ group "default" {
   targets = ["image"]
 }
 
-target "image-local" {
-  inherits = ["_common"]
+target "image" {
+  inherits = ["_common", "docker-metadata-action"]
   context = "."
   dockerfile = "Dockerfile"
   output = ["type=docker"]
@@ -55,15 +55,8 @@ target "image-local" {
 
 target "test" {
   target = "test"
-  inherits = ["image-local"]
+  inherits = ["image"]
   output = ["type=cacheonly"]
-}
-
-target "image" {
-  inherits = ["image-local", "docker-metadata-action"]
-  output = ["type=registry"]
-  cache-from = ["type=registry,ref=${GITHUB_REPOSITORY_OWNER}/${IMAGE}:buildcache"]
-  cache-to = ["type=registry,ref=${GITHUB_REPOSITORY_OWNER}/${IMAGE}:buildcache,mode=max,image-manifest=true"]
 }
 
 target "image-arch" {
