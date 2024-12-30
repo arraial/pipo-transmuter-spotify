@@ -67,10 +67,10 @@ target "image" {
 }
 
 target "image-arch" {
-  name = "image-${replace(arch, '/', '-')}"
+  name = "image-${replace(arch, "/", "-")}"
   inherits = ["image"]
-  cache-from = ["type=registry,ref=${GITHUB_REPOSITORY_OWNER}/${IMAGE}:buildcache-${replace(arch, '/', '-')}"]
-  cache-to = ["type=registry,ref=${GITHUB_REPOSITORY_OWNER}/${IMAGE}:buildcache-${replace(arch, '/', '-')},mode=max,image-manifest=true"]
+  cache-from = ["type=registry,ref=${GITHUB_REPOSITORY_OWNER}/${IMAGE}:buildcache-${replace(arch, "/", "-")}"]
+  cache-to = ["type=registry,ref=${GITHUB_REPOSITORY_OWNER}/${IMAGE}:buildcache-${replace(arch, "/", "-")},mode=max,image-manifest=true"]
   platform = arch
   matrix = {
     arch = ARCHS
@@ -79,7 +79,7 @@ target "image-arch" {
 
 group "image-all" {
   targets = flatten([
-    for arch in ARCHS : "image-${replace(arch, '/', '-')}"
+    for arch in ARCHS : "image-${replace(arch, "/", "-")}"
   ])
   sbom = true
   output = ["type=registry"]
