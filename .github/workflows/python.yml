@@ -11,4 +11,3 @@ jobs:
     secrets: inherit
     with:
       app_name: pipo_hub
-      test_image: false
