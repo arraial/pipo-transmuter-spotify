@@ -9,7 +9,7 @@ DOCUMENTATION=docs
 DIAGRAMS_FORMAT=plantuml
 TEST_FOLDER=./tests
 TEST_SECRETS:=$(shell realpath $(TEST_FOLDER)/.secrets.*)
-SECRETS_JSON=$(shell echo '{"queue_broker_url": "$(TEST_RABBITMQ_URL)", "spotify_client": "$(TEST_SPOTIFY_CLIENT)", "spotify_secret": "$(TEST_SPOTIFY_SECRET)"}')
+SECRETS_JSON=$(shell echo '{"queue_broker_url": "$(TEST_RABBITMQ_URL)"}')
 
 .PHONY: help
 help:
