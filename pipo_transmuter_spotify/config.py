@@ -9,7 +9,7 @@ from dynaconf import Dynaconf, Validator
 
 settings = Dynaconf(
     root_path=os.path.dirname(os.path.realpath(__file__)),
-    core_loaders=["YAML"],
+    core_loaders=["YAML", "JSON"],
     envvar_prefix="PIPO",
     default_env="default",
     env="default",
