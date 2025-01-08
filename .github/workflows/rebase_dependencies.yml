@@ -1,4 +1,4 @@
-name: rebase_with_default_branch
+name: rebase_with_main_branch
 
 on:
   workflow_dispatch:
@@ -7,4 +7,4 @@ on:
 
 jobs:
   rebase:
-    uses: arraial/workflows/.github/workflows/rebase_dependencies.yml@main
+    uses: arraial/workflows/.github/workflows/rebase_dependencies.yml@0.0.4
