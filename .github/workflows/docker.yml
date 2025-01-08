@@ -13,6 +13,7 @@ jobs:
     secrets: inherit
     with:
       image_name: ${{ vars.CONTAINER_TAG }}
+      test_image: false
     permissions:
       contents: write
       packages: write

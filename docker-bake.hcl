@@ -64,7 +64,7 @@ target "image-arch" {
   inherits = ["image"]
   cache-from = ["type=registry,ref=${GITHUB_REPOSITORY_OWNER}/${IMAGE}:buildcache-${replace(arch, "/", "-")}"]
   cache-to = ["type=registry,ref=${GITHUB_REPOSITORY_OWNER}/${IMAGE}:buildcache-${replace(arch, "/", "-")},mode=max,image-manifest=true"]
-  platform = arch
+  platforms = [arch]
   matrix = {
     arch = ARCHS
   }
