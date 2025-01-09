@@ -80,7 +80,7 @@ lint: check vulture
 
 .PHONY: test_secrets_file
 test_secrets_file:
-	$(POETRY) run dynaconf write yaml -y -e test -p "$(TEST_FOLDER)/" -s queue_broker_url="$(TEST_RABBITMQ_URL)" -s spotify_client="$(TEST_SPOTIFY_CLIENT)" -s spotify_secret="$(TEST_SPOTIFY_SECRET)"
+	$(POETRY) run dynaconf write yaml -y -e test -p "$(TEST_FOLDER)/" -s queue_broker_url="${TEST_RABBITMQ_URL}" -s spotify_client="${TEST_SPOTIFY_CLIENT}" -s spotify_secret="${TEST_SPOTIFY_SECRET}"
 	@echo $(TEST_SECRETS)
 
 .PHONY: test
