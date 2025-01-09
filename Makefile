@@ -1,10 +1,3 @@
--include .env
-
-# Secrets
-TEST_RABBITMQ_URL=none
-TEST_SPOTIFY_CLIENT=none
-TEST_SPOTIFY_SECRET=none
-
 APP=pipo_transmuter_spotify
 CONFIG_PATH=pyproject.toml
 POETRY=poetry
@@ -15,6 +8,8 @@ DIAGRAMS_FORMAT=plantuml
 TEST_FOLDER=./tests
 TEST_SECRETS:=$(shell realpath $(TEST_FOLDER)/.secrets.*)
 SECRETS_JSON=$(shell echo '{"TEST_RABBITMQ_URL": "$(TEST_RABBITMQ_URL)", "TEST_SPOTIFY_CLIENT": "$(TEST_SPOTIFY_CLIENT)", "TEST_SPOTIFY_SECRET": "$(TEST_SPOTIFY_SECRET)"}')
+
+-include .env
 
 .PHONY: help
 help:
