@@ -31,10 +31,10 @@ settings.validators.register(
             neq="",
         ),
         Validator(
-            "spotify.secret",
+            "spotify_secret",
             neq="",
             must_exist=True,
-            when=Validator("spotify.client", neq="", must_exist=True),
+            when=Validator("spotify_secret", neq="", must_exist=True),
         ),
     ],
 )

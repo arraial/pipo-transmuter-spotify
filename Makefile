@@ -1,5 +1,3 @@
--include .env
-
 APP=pipo_transmuter_spotify
 CONFIG_PATH=pyproject.toml
 POETRY=poetry
@@ -8,7 +6,11 @@ PRINT=python -c "import sys; print(str(sys.argv[1]))"
 DOCUMENTATION=docs
 DIAGRAMS_FORMAT=plantuml
 TEST_FOLDER=./tests
+
+-include .env
+
 TEST_SECRETS:=$(shell realpath $(TEST_FOLDER)/.secrets.*)
+SECRETS_JSON=$(shell echo '{"TEST_RABBITMQ_URL": "$(TEST_RABBITMQ_URL)", "TEST_SPOTIFY_CLIENT": "$(TEST_SPOTIFY_CLIENT)", "TEST_SPOTIFY_SECRET": "$(TEST_SPOTIFY_SECRET)"}')
 
 .PHONY: help
 help:
@@ -21,6 +23,7 @@ help:
 	$(PRINT) "    lint          run dev utilities for code quality assurance"
 	$(PRINT) "    format        run dev utilities for code format assurance"
 	$(PRINT) "    docs          generate code documentation"
+	$(PRINT) "    metrics       evaluate source code quality"
 	$(PRINT) "    test          run test suite"
 	$(PRINT) "    coverage      run coverage analysis"
 	$(PRINT) "    set_version   set program version"
@@ -32,7 +35,7 @@ help:
 .PHONY: poetry_setup
 poetry_setup:
 	curl -sSL https://install.python-poetry.org | python - --version $(POETRY_VERSION)
-	poetry config virtualenvs.in-project true --local
+	$(POETRY) config virtualenvs.in-project true --local
 
 .PHONY: setup
 setup:
@@ -50,8 +53,8 @@ dev_setup:
 update_deps:
 	$(POETRY) update
 
-.PHONY: ruff
-ruff:
+.PHONY: check
+check:
 	-$(POETRY) run ruff check .
 
 .PHONY: format
@@ -69,7 +72,12 @@ metrics:
 	$(POETRY) run radon mi -s $(APP)
 
 .PHONY: lint
-lint: ruff vulture
+lint: check vulture
+
+.PHONY: test_secrets_file
+test_secrets_file:
+	$(POETRY) run dynaconf write yaml -y -e test -p "$(TEST_FOLDER)/" -s queue_broker_url="${TEST_RABBITMQ_URL}" -s spotify_client="${TEST_SPOTIFY_CLIENT}" -s spotify_secret="${TEST_SPOTIFY_SECRET}"
+	@echo $(TEST_SECRETS)
 
 .PHONY: test
 test:

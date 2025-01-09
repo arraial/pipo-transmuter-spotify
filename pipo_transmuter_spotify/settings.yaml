@@ -1,4 +1,9 @@
 default:
+  # Remote Queue
+  queue_broker_url:
+  # Spotify client id + secret
+  spotify_client:
+  spotify_secret:
   telemetry:
     service: "@format {this.APP}"
     local: false
@@ -56,6 +61,8 @@ default:
           limit: 50     # max allowed by Spotify API
 test:
   dynaconf_merge: true
+  spotify_client: test
+  spotify_secret: test
   log:
     level: DEBUG
   channel: "test-channel"
