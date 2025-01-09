@@ -1,0 +1,30 @@
+version: 2
+updates:
+  # weekly check for security dependency updates and makes a PR dependencies branch
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "saturday"
+    target-branch: "dependencies"
+    groups:
+      dev-dependencies:
+        dependency-type: "development"
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "saturday"
+    target-branch: "dependencies"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "saturday"
+    open-pull-requests-limit: 3
+    groups:
+      github-actions:
+        patterns:
+          - "*"
