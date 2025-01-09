@@ -35,7 +35,7 @@ classifiers = [
 python = "^3.11"
 uuid6 = "^2024.7"
 pydantic = "~2.9.0"
-spotipy = "~2.24.0"
+spotipy = "~2.25.0"
 dynaconf = { version = "~3.2.0", extras = ["yaml"] }
 fastapi = { version = "~0.115.4", extras = ["standard"] }
 faststream = { version = "0.5.33", extras = ["rabbit", "otel", "prometheus"] }
