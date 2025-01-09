@@ -6,10 +6,11 @@ PRINT=python -c "import sys; print(str(sys.argv[1]))"
 DOCUMENTATION=docs
 DIAGRAMS_FORMAT=plantuml
 TEST_FOLDER=./tests
-TEST_SECRETS:=$(shell realpath $(TEST_FOLDER)/.secrets.*)
-SECRETS_JSON=$(shell echo '{"TEST_RABBITMQ_URL": "$(TEST_RABBITMQ_URL)", "TEST_SPOTIFY_CLIENT": "$(TEST_SPOTIFY_CLIENT)", "TEST_SPOTIFY_SECRET": "$(TEST_SPOTIFY_SECRET)"}')
 
 -include .env
+
+TEST_SECRETS:=$(shell realpath $(TEST_FOLDER)/.secrets.*)
+SECRETS_JSON=$(shell echo '{"TEST_RABBITMQ_URL": "$(TEST_RABBITMQ_URL)", "TEST_SPOTIFY_CLIENT": "$(TEST_SPOTIFY_CLIENT)", "TEST_SPOTIFY_SECRET": "$(TEST_SPOTIFY_SECRET)"}')
 
 .PHONY: help
 help:
