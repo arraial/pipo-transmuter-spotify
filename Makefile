@@ -1,5 +1,10 @@
 -include .env
 
+# Secrets
+TEST_RABBITMQ_URL=""
+TEST_SPOTIFY_CLIENT=""
+TEST_SPOTIFY_SECRET=""
+
 APP=pipo_transmuter_spotify
 CONFIG_PATH=pyproject.toml
 POETRY=poetry
@@ -75,7 +80,7 @@ lint: check vulture
 
 .PHONY: test_secrets_file
 test_secrets_file:
-	$(POETRY) run dynaconf write json -y -e test -p $(TEST_FOLDER) -s queue_broker_url="$(TEST_RABBITMQ_URL)" -s spotify_client="$(TEST_SPOTIFY_CLIENT)" -s spotify_secret="$(TEST_SPOTIFY_SECRET)"
+	@$(POETRY) run dynaconf write json -y -e test -p "$(TEST_FOLDER)/" -s queue_broker_url="$(TEST_RABBITMQ_URL)" -s spotify_client="$(TEST_SPOTIFY_CLIENT)" -s spotify_secret="$(TEST_SPOTIFY_SECRET)"
 	@echo $(TEST_SECRETS)
 
 .PHONY: test
