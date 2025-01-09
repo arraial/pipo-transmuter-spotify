@@ -1,9 +1,9 @@
 -include .env
 
 # Secrets
-TEST_RABBITMQ_URL=""
-TEST_SPOTIFY_CLIENT=""
-TEST_SPOTIFY_SECRET=""
+TEST_RABBITMQ_URL=none
+TEST_SPOTIFY_CLIENT=none
+TEST_SPOTIFY_SECRET=none
 
 APP=pipo_transmuter_spotify
 CONFIG_PATH=pyproject.toml
