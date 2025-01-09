@@ -9,7 +9,7 @@ from dynaconf import Dynaconf, Validator
 
 settings = Dynaconf(
     root_path=os.path.dirname(os.path.realpath(__file__)),
-    core_loaders=["YAML", "JSON"],
+    core_loaders=["YAML"],
     envvar_prefix="PIPO",
     default_env="default",
     env="default",
@@ -18,7 +18,7 @@ settings = Dynaconf(
     load_dotenv=True,
     dotenv_override=True,
     ignore_unknown_envvars=True,
-    settings_files=["settings.yaml", ".secrets.yaml", ".secrets.json"],
+    settings_files=["settings.yaml", ".secrets.yaml"],
 )
 
 # lazy evaluation, check on usage only
