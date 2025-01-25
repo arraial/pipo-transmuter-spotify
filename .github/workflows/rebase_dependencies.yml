@@ -7,4 +7,4 @@ on:
 
 jobs:
   rebase:
-    uses: arraial/workflows/.github/workflows/rebase_dependencies.yml@0.0.5
+    uses: arraial/workflows/.github/workflows/rebase_dependencies.yml@0.0.6

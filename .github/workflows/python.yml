@@ -7,7 +7,7 @@ on:
 
 jobs:
   python:
-    uses: arraial/workflows/.github/workflows/python.yml@0.0.5
+    uses: arraial/workflows/.github/workflows/python.yml@0.0.6
     secrets: inherit
     with:
       app_name: ${{ vars.APP_NAME }}
